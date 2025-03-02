@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: osc_postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: osc_user
+      POSTGRES_PASSWORD: osc_password123
+      POSTGRES_DB: oscdb
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: osc_redis
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+volumes:
+  pg_data:
+  redis_data:
