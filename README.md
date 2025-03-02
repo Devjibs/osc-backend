@@ -99,7 +99,7 @@ pnpm prisma generate
 redis-server
 ```
 
-### 2️⃣ Start the NestJS Server
+### 2️⃣ Start the Express Server
 
 ```sh
 pnpm start:dev
