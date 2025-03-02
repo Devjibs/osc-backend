@@ -13,7 +13,11 @@ export const comparePasswords = async (password: string, hash: string) =>
   bcrypt.compare(password, hash);
 
 export const generateToken = (userId: string, role: string) =>
-  jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '1h' });
+  jwt.sign({ userId, role }, JWT_SECRET, {
+    expiresIn: process.env.TOKEN_EXPIRES_IN
+      ? Number(process.env.TOKEN_EXPIRES_IN)
+      : '1h',
+  });
 
 export const verifyToken = (token: string) => {
   try {
