@@ -71,10 +71,10 @@ PORT=4000
 
 ## 📦 Database Setup & Migrations
 
-### 1️⃣ Run PostgreSQL (if not running already)
+### 1️⃣ Make sure Docker is running to setup PostgreSQL and Redis DB (if not running already)
 
 ```sh
-sudo systemctl start postgresql
+docker-compose up -d
 ```
 
 ### 2️⃣ Apply database migrations
@@ -92,12 +92,6 @@ pnpm prisma generate
 ---
 
 ## 🚀 Running the Project
-
-### 1️⃣ Start the Redis Server
-
-```sh
-redis-server
-```
 
 ### 2️⃣ Start the Express Server
 
