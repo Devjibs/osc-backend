@@ -3,34 +3,25 @@ import {
   Query,
   Arg,
   Mutation,
-  InputType,
-  Field,
   Ctx,
   UseMiddleware,
 } from 'type-graphql';
 import { isAuthenticated } from '../middleware/auth';
 import { Collection } from '../schema/Collection';
-import { prisma } from '../utils/prisma';
-
-@InputType()
-class CollectionInput {
-  @Field()
-  name!: string;
-}
+import { CollectionService } from '../services/collection.service';
+import { CollectionInput } from '../schema/CollectionInput';
+import { Role } from '@prisma/client';
 
 @Resolver()
 export class CollectionResolver {
   @Query(() => [Collection])
   async collections(): Promise<Collection[]> {
-    return prisma.collection.findMany({ include: { courses: true } });
+    return await CollectionService.getCollections();
   }
 
   @Query(() => Collection, { nullable: true })
   async collection(@Arg('id') id: string): Promise<Collection | null> {
-    return prisma.collection.findUnique({
-      where: { id },
-      include: { courses: true },
-    });
+    return await CollectionService.getCollection(id);
   }
 
   @Mutation(() => Collection)
@@ -38,7 +29,7 @@ export class CollectionResolver {
   async addCollection(
     @Arg('input') input: CollectionInput,
   ): Promise<Collection> {
-    return prisma.collection.create({ data: input });
+    return await CollectionService.addCollection(input);
   }
 
   @Mutation(() => Collection)
@@ -48,11 +39,10 @@ export class CollectionResolver {
     @Arg('name') name: string,
     @Ctx() ctx: any,
   ): Promise<Collection> {
-    if (ctx.user.role !== 'ADMIN') {
+    if (ctx.user.role !== Role.ADMIN) {
       throw new Error('Not authorized');
     }
-
-    return prisma.collection.update({ where: { id }, data: { name } });
+    return await CollectionService.updateCollection(id, name);
   }
 
   @Mutation(() => Boolean)
@@ -64,8 +54,6 @@ export class CollectionResolver {
     if (ctx.user.role !== 'ADMIN') {
       throw new Error('Not authorized');
     }
-
-    await prisma.collection.delete({ where: { id } });
-    return true;
+    return await CollectionService.deleteCollection(id);
   }
 }

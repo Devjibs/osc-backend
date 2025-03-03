@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import { MiddlewareFn } from 'type-graphql';
 import { Context } from 'vm';
 import { prisma } from './prisma';
+import { Role } from '@prisma/client';
+import { tokenExpiration } from './jwt';
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'super-secure-secret';
 
@@ -14,9 +16,7 @@ export const comparePasswords = async (password: string, hash: string) =>
 
 export const generateToken = (userId: string, role: string) =>
   jwt.sign({ userId, role }, JWT_SECRET, {
-    expiresIn: process.env.TOKEN_EXPIRES_IN
-      ? Number(process.env.TOKEN_EXPIRES_IN)
-      : '1h',
+    expiresIn: tokenExpiration(),
   });
 
 export const verifyToken = (token: string) => {
@@ -51,7 +51,7 @@ export const isOwnerOrAdmin: MiddlewareFn<Context> = async (
   if (!course) throw new Error('Course not found');
 
   if (
-    context.user.role !== 'ADMIN' &&
+    context.user.role !== Role.ADMIN &&
     course.createdById !== context.user.userId
   ) {
     throw new Error('Permission denied');

@@ -1,4 +1,8 @@
 // @ts-nocheck
+jest.mock('../src/utils/jwt', () => ({
+  tokenExpiration: jest.fn(() => '1h'), // Always return "1h" for tests
+}));
+
 import 'reflect-metadata';
 import { ApolloServer } from '@apollo/server';
 import { buildSchema } from 'type-graphql';
