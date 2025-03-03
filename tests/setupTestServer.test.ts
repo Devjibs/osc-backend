@@ -1,6 +1,6 @@
 // @ts-nocheck
 jest.mock('../src/utils/jwt', () => ({
-  tokenExpiration: jest.fn(() => '1h'), // Always return "1h" for tests
+  tokenExpiration: jest.fn(() => '1h'),
 }));
 
 import 'reflect-metadata';
