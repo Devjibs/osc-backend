@@ -23,78 +23,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CourseResolver = void 0;
 const type_graphql_1 = require("type-graphql");
-const client_1 = require("@prisma/client");
+const prisma_1 = require("../utils/prisma");
 const Course_1 = require("../schema/Course");
+const CourseInput_1 = require("../schema/CourseInput");
 const auth_1 = require("../middleware/auth");
-const prisma = new client_1.PrismaClient();
-let CourseInput = class CourseInput {
-};
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], CourseInput.prototype, "title", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], CourseInput.prototype, "description", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], CourseInput.prototype, "duration", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], CourseInput.prototype, "outcome", void 0);
-CourseInput = __decorate([
-    (0, type_graphql_1.InputType)()
-], CourseInput);
+const auth_2 = require("../utils/auth");
+const User_1 = require("../schema/User");
+const course_service_1 = require("../services/course.service");
 let CourseResolver = class CourseResolver {
-    courses(limit, sortOrder) {
+    courses(limit) {
         return __awaiter(this, void 0, void 0, function* () {
-            return prisma.course.findMany({
-                take: limit,
-                orderBy: {
-                    title: sortOrder === 'DESC' ? 'desc' : 'asc',
-                },
-            });
+            return yield course_service_1.CourseService.getCourses(limit);
         });
     }
-    course(id) {
+    createdBy(course) {
         return __awaiter(this, void 0, void 0, function* () {
-            return prisma.course.findUnique({ where: { id } });
+            return yield prisma_1.userLoader.load(course.createdById);
         });
     }
-    addCourse(input, ctx) {
+    addCourse(input, context) {
         return __awaiter(this, void 0, void 0, function* () {
-            return prisma.course.create({
-                data: Object.assign(Object.assign({}, input), { createdById: ctx.user.userId }),
-            });
+            return yield course_service_1.CourseService.addCourse(input, context.user.userId);
         });
     }
-    updateCourse(id, input, ctx) {
+    updateCourse(id, input) {
         return __awaiter(this, void 0, void 0, function* () {
-            const course = yield prisma.course.findUnique({ where: { id } });
-            if (!course)
-                throw new Error('Course not found');
-            if (ctx.user.role !== 'ADMIN' && course.createdById !== ctx.user.userId) {
-                throw new Error('Not authorized');
-            }
-            return prisma.course.update({
-                where: { id },
-                data: input,
-            });
+            return yield course_service_1.CourseService.updateCourse(id, input);
         });
     }
-    deleteCourse(id, ctx) {
+    deleteCourse(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const course = yield prisma.course.findUnique({ where: { id } });
-            if (!course)
-                throw new Error('Course not found');
-            if (ctx.user.role !== 'ADMIN' && course.createdById !== ctx.user.userId) {
-                throw new Error('Not authorized');
-            }
-            yield prisma.course.delete({ where: { id } });
-            return true;
+            return yield course_service_1.CourseService.deleteCourse(id);
         });
     }
 };
@@ -102,46 +61,43 @@ exports.CourseResolver = CourseResolver;
 __decorate([
     (0, type_graphql_1.Query)(() => [Course_1.Course]),
     __param(0, (0, type_graphql_1.Arg)('limit', { nullable: true })),
-    __param(1, (0, type_graphql_1.Arg)('sortOrder', { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "courses", null);
 __decorate([
-    (0, type_graphql_1.Query)(() => Course_1.Course, { nullable: true }),
-    __param(0, (0, type_graphql_1.Arg)('id')),
+    (0, type_graphql_1.FieldResolver)(() => User_1.User),
+    __param(0, (0, type_graphql_1.Root)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Course_1.Course]),
     __metadata("design:returntype", Promise)
-], CourseResolver.prototype, "course", null);
+], CourseResolver.prototype, "createdBy", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Course_1.Course),
     (0, type_graphql_1.UseMiddleware)(auth_1.isAuthenticated),
-    __param(0, (0, type_graphql_1.Arg)('input')),
+    __param(0, (0, type_graphql_1.Arg)('input', () => CourseInput_1.CourseInput)),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [CourseInput, Object]),
+    __metadata("design:paramtypes", [CourseInput_1.CourseInput, Object]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "addCourse", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Course_1.Course),
-    (0, type_graphql_1.UseMiddleware)(auth_1.isAuthenticated),
+    (0, type_graphql_1.UseMiddleware)(auth_1.isAuthenticated, auth_2.isOwnerOrAdmin),
     __param(0, (0, type_graphql_1.Arg)('id')),
-    __param(1, (0, type_graphql_1.Arg)('input')),
-    __param(2, (0, type_graphql_1.Ctx)()),
+    __param(1, (0, type_graphql_1.Arg)('input', () => CourseInput_1.CourseInput)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, CourseInput, Object]),
+    __metadata("design:paramtypes", [String, CourseInput_1.CourseInput]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "updateCourse", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
-    (0, type_graphql_1.UseMiddleware)(auth_1.isAuthenticated),
+    (0, type_graphql_1.UseMiddleware)(auth_1.isAuthenticated, auth_2.isAdmin),
     __param(0, (0, type_graphql_1.Arg)('id')),
-    __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "deleteCourse", null);
 exports.CourseResolver = CourseResolver = __decorate([
-    (0, type_graphql_1.Resolver)()
+    (0, type_graphql_1.Resolver)(() => Course_1.Course)
 ], CourseResolver);

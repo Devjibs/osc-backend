@@ -21,23 +21,49 @@ beforeAll(async () => {
   const adminRes = await request(url)
     .post('/graphql')
     .send({
-      query: `mutation { register(username: "${uniqueAdminUsername}", password: "adminpass", role: "ADMIN") }`,
+      query: `mutation { register(username: "${uniqueAdminUsername}", password: "adminpass", role: "ADMIN") { message } }`,
     });
 
   console.log('🔹 Admin Register Response:', adminRes.body);
   if (adminRes.body.errors) throw new Error('Admin registration failed');
-  adminToken = adminRes.body.data.register;
+
+  // 🔹 Log in Admin to Get Token
+  const adminLoginRes = await request(url)
+    .post('/graphql')
+    .send({
+      query: `mutation { login(username: "${uniqueAdminUsername}", password: "adminpass") }`,
+    });
+
+  console.log('🔹 Admin Login Response:', adminLoginRes.body);
+  if (adminLoginRes.body.errors) throw new Error('Admin login failed');
+  adminToken = adminLoginRes.body.data.login; // ✅ Store Admin Token
 
   // Register Regular User
   const userRes = await request(url)
     .post('/graphql')
     .send({
-      query: `mutation { register(username: "${uniqueUserUsername}", password: "userpass", role: "USER") }`,
+      query: `mutation { register(username: "${uniqueUserUsername}", password: "userpass", role: "USER") { message } }`,
     });
 
   console.log('🔹 User Register Response:', userRes.body);
   if (userRes.body.errors) throw new Error('User registration failed');
-  userToken = userRes.body.data.register;
+
+  // 🔹 Log in User to Get Token
+  const userLoginRes = await request(url)
+    .post('/graphql')
+    .send({
+      query: `mutation { login(username: "${uniqueUserUsername}", password: "userpass") }`,
+    });
+
+  console.log('🔹 User Login Response:', userLoginRes.body);
+  if (userLoginRes.body.errors) throw new Error('User login failed');
+  userToken = userLoginRes.body.data.login; // ✅ Store User Token
+
+  console.log('🔹 User Register Response:', userRes.body);
+  if (userRes.body.errors) throw new Error('User registration failed');
+  expect(userRes.body.data.register).toEqual({
+    message: 'Registration successful',
+  });
 });
 
 afterAll(async () => {

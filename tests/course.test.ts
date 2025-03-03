@@ -15,23 +15,37 @@ beforeAll(async () => {
 
   // Register Admin User
   const adminRes = await request(url).post('/graphql').send({
-    query: `mutation { register(username: "admin", password: "adminpass", role: "ADMIN") }`,
+    query: `mutation { register(username: "admin", password: "adminpass", role: "ADMIN") { message } }`,
   });
 
-  adminToken = adminRes.body.data.register;
+  console.log('🔹 Admin Register Response:', adminRes.body);
+  if (adminRes.body.errors) throw new Error('Admin registration failed');
 
-  // Register user
-  await request(url).post('/graphql').send({
-    query: `mutation { register(username: "testuser", password: "testpassword") }`,
+  // Log in the Admin User to Get Token
+  const adminLoginRes = await request(url).post('/graphql').send({
+    query: `mutation { login(username: "admin", password: "adminpass") }`,
   });
 
-  // Login and retrieve token
-  const loginRes = await request(url).post('/graphql').send({
+  console.log('🔹 Admin Login Response:', adminLoginRes.body);
+  if (adminLoginRes.body.errors) throw new Error('Admin login failed');
+  adminToken = adminLoginRes.body.data.login;
+
+  // Register Regular User
+  const userRes = await request(url).post('/graphql').send({
+    query: `mutation { register(username: "testuser", password: "testpassword", role: "USER") { message } }`,
+  });
+
+  console.log('🔹 User Register Response:', userRes.body);
+  if (userRes.body.errors) throw new Error('User registration failed');
+
+  // Log in User to Get Token
+  const userLoginRes = await request(url).post('/graphql').send({
     query: `mutation { login(username: "testuser", password: "testpassword") }`,
   });
 
-  token = loginRes.body.data.login;
-  console.log('🔹 Test Token:', token);
+  console.log('🔹 User Login Response:', userLoginRes.body);
+  if (userLoginRes.body.errors) throw new Error('User login failed');
+  token = userLoginRes.body.data.login;
 });
 
 afterAll(async () => {

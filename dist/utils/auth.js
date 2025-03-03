@@ -13,15 +13,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyToken = exports.generateToken = exports.comparePasswords = exports.hashPassword = void 0;
+exports.isOwnerOrAdmin = exports.isAdmin = exports.verifyToken = exports.generateToken = exports.comparePasswords = exports.hashPassword = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const prisma_1 = require("./prisma");
+const client_1 = require("@prisma/client");
+const jwt_1 = require("./jwt");
 const JWT_SECRET = (_a = process.env.JWT_SECRET) !== null && _a !== void 0 ? _a : 'super-secure-secret';
 const hashPassword = (password) => __awaiter(void 0, void 0, void 0, function* () { return bcryptjs_1.default.hash(password, 10); });
 exports.hashPassword = hashPassword;
 const comparePasswords = (password, hash) => __awaiter(void 0, void 0, void 0, function* () { return bcryptjs_1.default.compare(password, hash); });
 exports.comparePasswords = comparePasswords;
-const generateToken = (userId, role) => jsonwebtoken_1.default.sign({ userId, role }, JWT_SECRET, { expiresIn: '1h' });
+const generateToken = (userId, role) => jsonwebtoken_1.default.sign({ userId, role }, JWT_SECRET, {
+    expiresIn: (0, jwt_1.tokenExpiration)(),
+});
 exports.generateToken = generateToken;
 const verifyToken = (token) => {
     try {
@@ -34,3 +39,26 @@ const verifyToken = (token) => {
     }
 };
 exports.verifyToken = verifyToken;
+const isAdmin = (_a, next_1) => __awaiter(void 0, [_a, next_1], void 0, function* ({ context }, next) {
+    if (!context.user) {
+        throw new Error('Unauthorized');
+    }
+    if (context.user.role !== 'ADMIN') {
+        throw new Error('Permission denied');
+    }
+    return next();
+});
+exports.isAdmin = isAdmin;
+const isOwnerOrAdmin = (_a, next_1) => __awaiter(void 0, [_a, next_1], void 0, function* ({ context, args }, next) {
+    if (!context.user)
+        throw new Error('Unauthorized');
+    const course = yield prisma_1.prisma.course.findUnique({ where: { id: args.id } });
+    if (!course)
+        throw new Error('Course not found');
+    if (context.user.role !== client_1.Role.ADMIN &&
+        course.createdById !== context.user.userId) {
+        throw new Error('Permission denied');
+    }
+    return next();
+});
+exports.isOwnerOrAdmin = isOwnerOrAdmin;

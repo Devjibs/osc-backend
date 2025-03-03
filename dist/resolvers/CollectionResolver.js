@@ -23,44 +23,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CollectionResolver = void 0;
 const type_graphql_1 = require("type-graphql");
-const client_1 = require("@prisma/client");
 const auth_1 = require("../middleware/auth");
 const Collection_1 = require("../schema/Collection");
-const prisma = new client_1.PrismaClient();
-let CollectionInput = class CollectionInput {
-};
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], CollectionInput.prototype, "name", void 0);
-CollectionInput = __decorate([
-    (0, type_graphql_1.InputType)()
-], CollectionInput);
+const collection_service_1 = require("../services/collection.service");
+const CollectionInput_1 = require("../schema/CollectionInput");
+const client_1 = require("@prisma/client");
 let CollectionResolver = class CollectionResolver {
     collections() {
         return __awaiter(this, void 0, void 0, function* () {
-            return prisma.collection.findMany({ include: { courses: true } });
+            return yield collection_service_1.CollectionService.getCollections();
         });
     }
     collection(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return prisma.collection.findUnique({
-                where: { id },
-                include: { courses: true },
-            });
+            return yield collection_service_1.CollectionService.getCollection(id);
         });
     }
     addCollection(input) {
         return __awaiter(this, void 0, void 0, function* () {
-            return prisma.collection.create({ data: input });
+            return yield collection_service_1.CollectionService.addCollection(input);
         });
     }
     updateCollection(id, name, ctx) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (ctx.user.role !== 'ADMIN') {
+            if (ctx.user.role !== client_1.Role.ADMIN) {
                 throw new Error('Not authorized');
             }
-            return prisma.collection.update({ where: { id }, data: { name } });
+            return yield collection_service_1.CollectionService.updateCollection(id, name);
         });
     }
     deleteCollection(id, ctx) {
@@ -68,8 +57,7 @@ let CollectionResolver = class CollectionResolver {
             if (ctx.user.role !== 'ADMIN') {
                 throw new Error('Not authorized');
             }
-            yield prisma.collection.delete({ where: { id } });
-            return true;
+            return yield collection_service_1.CollectionService.deleteCollection(id);
         });
     }
 };
@@ -92,7 +80,7 @@ __decorate([
     (0, type_graphql_1.UseMiddleware)(auth_1.isAuthenticated),
     __param(0, (0, type_graphql_1.Arg)('input')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [CollectionInput]),
+    __metadata("design:paramtypes", [CollectionInput_1.CollectionInput]),
     __metadata("design:returntype", Promise)
 ], CollectionResolver.prototype, "addCollection", null);
 __decorate([

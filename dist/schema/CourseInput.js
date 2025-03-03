@@ -9,44 +9,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Course = void 0;
+exports.CourseInput = void 0;
 const type_graphql_1 = require("type-graphql");
-let Course = class Course {
-    constructor(id, title, description, duration, outcome, createdById) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.duration = duration;
-        this.outcome = outcome;
-        this.createdById = createdById;
+let CourseInput = class CourseInput {
+    constructor() {
+        this.title = '';
+        this.description = '';
+        this.duration = '';
+        this.outcome = '';
     }
 };
-exports.Course = Course;
-__decorate([
-    (0, type_graphql_1.Field)(() => type_graphql_1.ID),
-    __metadata("design:type", String)
-], Course.prototype, "id", void 0);
+exports.CourseInput = CourseInput;
 __decorate([
     (0, type_graphql_1.Field)(),
     __metadata("design:type", String)
-], Course.prototype, "title", void 0);
+], CourseInput.prototype, "title", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     __metadata("design:type", String)
-], Course.prototype, "description", void 0);
+], CourseInput.prototype, "description", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     __metadata("design:type", String)
-], Course.prototype, "duration", void 0);
+], CourseInput.prototype, "duration", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     __metadata("design:type", String)
-], Course.prototype, "outcome", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], Course.prototype, "createdById", void 0);
-exports.Course = Course = __decorate([
-    (0, type_graphql_1.ObjectType)(),
-    __metadata("design:paramtypes", [String, String, String, String, String, String])
-], Course);
+], CourseInput.prototype, "outcome", void 0);
+exports.CourseInput = CourseInput = __decorate([
+    (0, type_graphql_1.InputType)()
+], CourseInput);

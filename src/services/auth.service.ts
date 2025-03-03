@@ -3,16 +3,17 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma';
 import { Role } from '@prisma/client';
 import { tokenExpiration } from '../utils/jwt';
+import { RegisterResponse } from '../models/register.response';
 
 export class AuthService {
   static async register(
     username: string,
     password: string,
     role: Role = Role.USER,
-  ): Promise<string> {
+  ): Promise<RegisterResponse> {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         username,
         password: hashedPassword,
@@ -20,7 +21,7 @@ export class AuthService {
       },
     });
 
-    return AuthService.generateToken(user.id, user.role);
+    return { message: 'Registration successful' };
   }
 
   static async login(username: string, password: string): Promise<string> {

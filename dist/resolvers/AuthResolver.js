@@ -23,35 +23,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthResolver = void 0;
 const type_graphql_1 = require("type-graphql");
+const auth_service_1 = require("../services/auth.service");
 const client_1 = require("@prisma/client");
-const auth_1 = require("../utils/auth");
-const prisma = new client_1.PrismaClient();
+const register_response_1 = require("../models/register.response");
 let AuthResolver = class AuthResolver {
-    register(username, password) {
+    register(username, password, role) {
         return __awaiter(this, void 0, void 0, function* () {
-            const hashedPassword = yield (0, auth_1.hashPassword)(password);
-            const user = yield prisma.user.create({
-                data: { username, password: hashedPassword, role: 'USER' },
-            });
-            return (0, auth_1.generateToken)(user.id, user.role);
+            return yield auth_service_1.AuthService.register(username, password, role);
         });
     }
     login(username, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield prisma.user.findUnique({ where: { username } });
-            if (!user || !(yield (0, auth_1.comparePasswords)(password, user.password)))
-                throw new Error('Invalid credentials');
-            return (0, auth_1.generateToken)(user.id, user.role);
+            return yield auth_service_1.AuthService.login(username, password);
         });
     }
 };
 exports.AuthResolver = AuthResolver;
 __decorate([
-    (0, type_graphql_1.Mutation)(() => String),
+    (0, type_graphql_1.Mutation)(() => register_response_1.RegisterResponse),
     __param(0, (0, type_graphql_1.Arg)('username')),
     __param(1, (0, type_graphql_1.Arg)('password')),
+    __param(2, (0, type_graphql_1.Arg)('role', { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], AuthResolver.prototype, "register", null);
 __decorate([

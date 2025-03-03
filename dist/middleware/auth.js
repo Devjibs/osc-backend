@@ -6,9 +6,8 @@ const isAuthenticated = ({ context }, next) => {
     let token = context.req.headers.authorization;
     if (!token)
         throw new Error('Unauthorized');
-    // ✅ Fix: Remove "Bearer " before verifying
     if (token.startsWith('Bearer ')) {
-        token = token.slice(7); // Remove "Bearer " prefix
+        token = token.slice(7);
     }
     const user = (0, auth_1.verifyToken)(token);
     if (!user)
