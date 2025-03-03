@@ -7,7 +7,11 @@
     "test": "cross-env NODE_ENV=test jest --detectOpenHandles --forceExit",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
     "build": "tsc",
-    "dev": "ts-node src/index.ts"
+    "dev": "ts-node src/index.ts",
+    "db:migrate": "prisma migrate dev --name init",
+    "db:deploy": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:studio": "port=5555 prisma studio"
   },
   "keywords": [],
   "author": "",
@@ -27,11 +31,7 @@
     "ioredis": "^5.5.0",
     "jsonwebtoken": "^9.0.2",
     "reflect-metadata": "^0.2.2",
-    "type-graphql": "2.0.0-rc.2",
-    "db:migrate": "prisma migrate dev --name init",
-    "db:deploy": "prisma migrate deploy",
-    "db:generate": "prisma generate",
-    "db:studio": "port=5555 prisma studio"
+    "type-graphql": "2.0.0-rc.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
