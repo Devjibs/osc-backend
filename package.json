@@ -27,7 +27,11 @@
     "ioredis": "^5.5.0",
     "jsonwebtoken": "^9.0.2",
     "reflect-metadata": "^0.2.2",
-    "type-graphql": "2.0.0-rc.2"
+    "type-graphql": "2.0.0-rc.2",
+    "db:migrate": "prisma migrate dev --name init",
+    "db:deploy": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:studio": "port=5555 prisma studio"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
